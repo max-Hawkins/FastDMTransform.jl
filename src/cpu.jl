@@ -1,5 +1,4 @@
 using LoopVectorization, LinearAlgebra, Base.Threads
-import Base.Threads.@spawn
 
 struct InputBlock{T<:Real,
                   M<:AbstractMatrix{T},
@@ -88,17 +87,17 @@ function transform_recursive(block::InputBlock, y_min::Int, y_max::Int)
     # Transform
     y_min_head = round(Int, y_min * head.Δkdisp / block.Δkdisp + 0.5)
     y_max_head = round(Int, y_max * head.Δkdisp / block.Δkdisp + 0.5)
-    transformed_head_task = @spawn transform_recursive(head, y_min_head, y_max_head)
+    transformed_head_task = transform_recursive(head, y_min_head, y_max_head)
 
     y_min_tail = round(Int, y_min * tail.Δkdisp / block.Δkdisp + 0.5)
     y_max_tail = round(Int, y_max * tail.Δkdisp / block.Δkdisp + 0.5)
-    transformed_tail_task = @spawn transform_recursive(tail, y_min_tail, y_max_tail)
+    transformed_tail_task = transform_recursive(tail, y_min_tail, y_max_tail)
 
     n_samp = size(block)[1]
     j_range = 1:n_samp
 
-    transformed_head = fetch(transformed_head_task)
-    transformed_tail = fetch(transformed_tail_task)
+    transformed_head = transformed_head_task
+    transformed_tail = transformed_tail_task
 
     # Merge
     @tturbo for y in y_min:y_max
