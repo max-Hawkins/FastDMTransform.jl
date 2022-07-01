@@ -100,7 +100,7 @@ function transform_recursive(block::InputBlock, y_min::Int, y_max::Int)
     transformed_tail = transformed_tail_task
 
     # Merge
-    @tturbo for y in y_min:y_max
+    for y in y_min:y_max
         # yh = delay across head band
         yh = round(Int, y * head.Δkdisp / block.Δkdisp + 0.5)
         # yt = delay across tail band
